@@ -133,6 +133,7 @@
 | originalUrl | text | 정규화된 원문 URL |
 | relatedUrls | jsonb | 같은 사건을 다룬 다른 출처 URL 목록 |
 | originalTitle | text | 영어 원제목 |
+| author | text (nullable) | 원문 기사 작성자 (RSS에 없으면 비움) |
 | titleKo | text | 한국어 제목 |
 | summaryKo | text | 한국어 요약 |
 | category | text | 카테고리 이름 |

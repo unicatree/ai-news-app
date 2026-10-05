@@ -62,7 +62,7 @@ RSS 소스는 두 개로 고정(소스 추가 UI는 범위 외):
 
 ## 데이터 모델 (Drizzle)
 
-- `articles` — 저장한 뉴스 (뉴스는 이 테이블 하나에만 저장): `id`(uuid PK), `userId`, `source`(합친 경우 대표 출처), `originalUrl`(정규화된 URL), `relatedUrls`(jsonb, 같은 사건 다른 출처 URL), `originalTitle`, `titleKo`, `summaryKo`, `category`(카테고리 **이름** 텍스트, FK 아님), `imageUrl?`, `publishedAt`, `notionPageUrl?`, `savedAt`. 유니크 `(userId, originalUrl)`.
+- `articles` — 저장한 뉴스 (뉴스는 이 테이블 하나에만 저장): `id`(uuid PK), `userId`, `source`(합친 경우 대표 출처), `originalUrl`(정규화된 URL), `relatedUrls`(jsonb, 같은 사건 다른 출처 URL), `originalTitle`, `author?`(원문 작성자), `titleKo`, `summaryKo`, `category`(카테고리 **이름** 텍스트, FK 아님), `imageUrl?`, `publishedAt`, `notionPageUrl?`, `savedAt`. 유니크 `(userId, originalUrl)`.
 - `categories`: `id`(uuid PK), `userId`, `name`, `createdAt`. 유니크 `(userId, name)`.
 - `notion_connections`: `userId`(PK), `accessToken`/`refreshToken`(**암호화 저장**, `ENCRYPTION_KEY`), `expiresAt`, `targetPageId`.
 
