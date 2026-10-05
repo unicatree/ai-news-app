@@ -26,6 +26,7 @@ npx drizzle-kit migrate    # Neon에 마이그레이션 적용
 
 - **Next.js 16** (App Router, TypeScript, `src/` 디렉터리, `@/*` → `src/*`). 학습 데이터와 다른 API가 많으므로 `node_modules/next/dist/docs/`를 먼저 확인할 것. 특히 `middleware.ts`는 **`proxy.ts`로 이름이 바뀌었고** Node.js 런타임에서만 동작한다 — Clerk 라우트 보호는 `src/proxy.ts`에 둔다.
 - **Tailwind CSS v4**: `tailwind.config` 없이 `src/app/globals.css`의 `@import "tailwindcss"`와 `@theme`로 설정한다.
+- **Clerk Core 3** (`@clerk/nextjs` v7): `SignedIn`/`SignedOut`/`Protect`는 제거됨 → `<Show when="signed-in">` 등을 사용. `<ClerkProvider>`는 `<body>` 안에 두고, 한국어 UI는 `@clerk/localizations`의 `koKR`.
 - 로그인 Clerk(`@clerk/nextjs`), DB Neon(`@neondatabase/serverless`) + Drizzle ORM, AI `@anthropic-ai/sdk`, RSS `rss-parser`.
 
 ## 구현 단계 (PRD 8장 순서대로 진행)
@@ -41,7 +42,7 @@ npx drizzle-kit migrate    # Neon에 마이그레이션 적용
 
 | 화면 | 경로 | 내용 |
 |---|---|---|
-| 로그인/회원가입 | `/sign-in`, `/sign-up` | Clerk 기본 UI. 이 두 경로 외 모든 페이지는 로그인 필요 |
+| 로그인/회원가입 | `/` (모달) | 별도 페이지 없음. 미로그인 시 `/`에서 Clerk 로그인 모달이 자동으로 열림 (`NEXT_PUBLIC_CLERK_SIGN_IN_URL=/`) |
 | 메인 | `/` | 뉴스 가져오기 버튼, 탭(가져온 뉴스 / 저장한 뉴스), 카테고리 필터 칩, 모두 저장, 카드 그리드 |
 | 카테고리 관리 | `/settings/categories` | 추가/수정/삭제 |
 | 노션 설정 | `/settings/notion` | 연결/해제, 저장 대상 페이지 지정 |
@@ -67,6 +68,10 @@ RSS 소스는 두 개로 고정(소스 추가 UI는 범위 외):
 
 ## 핵심 규칙
 
+- **인증 검사 위치**: `src/proxy.ts`는 `clerkMiddleware()`만 실행하고 경로 기반 검사는 하지 않는다(`createRouteMatcher`는 deprecated). 보호가 필요한 곳에서 직접 검사한다.
+  - 페이지/레이아웃·Server Action: `const { userId } = await auth.protect();` (미로그인 페이지 요청은 `/`로 리다이렉트 → 로그인 모달)
+  - Route Handler: `const { userId } = await auth(); if (!userId) return Response.json({ error: "로그인이 필요합니다." }, { status: 401 });`
+  - `auth`는 `@clerk/nextjs/server`에서 import.
 - **사용자 격리**: 모든 데이터(뉴스, 카테고리, 노션 연결)는 Clerk `userId`로 분리. 모든 API·Server Action은 로그인 사용자 본인 데이터만 읽고 쓴다.
 - **가져오기 ≠ 저장**: 가져온 뉴스는 "가져온 뉴스" 탭에 카드로만 보여준다. DB 쓰기는 저장하기/모두 저장에서만. 가져오는 중 로딩 상태, 실패 시 오류 메시지 표시.
 - **중복 처리 (F3)**
