@@ -184,7 +184,7 @@ TechCrunch · The Verge의 AI 소식을 한국어로…
 
 - 원문 링크: `text-sm font-medium text-blue-600 hover:underline` + ↗ 아이콘, `target="_blank" rel="noopener noreferrer"`. 합친 카드는 "TechCrunch 원문", "The Verge 원문"처럼 출처별로 모두 표시.
 - 가져온 뉴스 탭: `저장하기`(채운 파란 버튼) → 저장 후 `✓ 저장됨` 상태 표시
-- 저장한 뉴스 탭: `Notion 저장`(테두리 버튼) → 저장 후 `✓ Notion 저장됨 ↗`(노션 페이지 링크)
+- 저장한 뉴스 탭: `뉴스저장`(테두리 버튼, 노션 데이터베이스에 저장) → 저장 후 `✓ 저장됨 ↗`(노션 페이지 링크)
 
 ---
 
@@ -196,7 +196,7 @@ TechCrunch · The Verge의 AI 소식을 한국어로…
 |---|---|---|
 | 큰 기본 | `h-11 rounded-xl bg-blue-600 px-5 font-semibold text-white shadow-sm shadow-blue-600/20 hover:bg-blue-700` | 뉴스 가져오기 (화면당 하나) |
 | 기본 | `h-9 rounded-lg bg-blue-600 px-4 text-sm font-semibold text-white hover:bg-blue-700` | 저장하기 |
-| 테두리 | `h-9 rounded-lg border border-blue-200 px-4 text-sm font-semibold text-blue-700 hover:bg-blue-50` | 모두 저장, Notion 저장 |
+| 테두리 | `h-9 rounded-lg border border-blue-200 px-4 text-sm font-semibold text-blue-700 hover:bg-blue-50` | 모두 저장, 뉴스저장 |
 | 텍스트 | `text-sm font-medium text-slate-500 hover:text-slate-900` | 수정, 취소 |
 | 위험 텍스트 | `text-sm font-medium text-red-600 hover:text-red-700` | 삭제, 노션 연결 해제 |
 

@@ -9,7 +9,7 @@ const dateFormat = new Intl.DateTimeFormat("ko-KR", {
 
 type Props = {
   item: NewsItem;
-  // "fetched": 가져온 뉴스 탭(저장하기), "saved": 저장한 뉴스 탭(Notion 저장)
+  // "fetched": 가져온 뉴스 탭(저장하기), "saved": 저장한 뉴스 탭(뉴스저장 → 노션 데이터베이스)
   variant: "fetched" | "saved";
   busy?: boolean;
   onSave?: () => void;
@@ -99,11 +99,11 @@ export function NewsCard({ item, variant, busy, onSave, onNotionSave }: Props) {
             rel="noopener noreferrer"
             className="shrink-0"
           >
-            <StatusBadge>Notion 저장됨 ↗</StatusBadge>
+            <StatusBadge>저장됨 ↗</StatusBadge>
           </a>
         ) : (
           <PrimaryButton onClick={onNotionSave} disabled={busy} outline>
-            {busy ? "저장 중…" : "Notion 저장"}
+            {busy ? "저장 중…" : "뉴스저장"}
           </PrimaryButton>
         )}
       </div>

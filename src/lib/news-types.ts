@@ -29,3 +29,6 @@ export type FetchNewsResponse =
       failedCount: number; // Claude 처리에 실패해 빠진 기사 수
     }
   | { error: string };
+
+// POST /api/notion/save 응답
+export type NotionSaveResponse = { notionPageUrl: string } | { error: string };
