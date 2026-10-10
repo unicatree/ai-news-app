@@ -60,7 +60,8 @@ async function ArticleList({ userId, selected }: { userId: string; selected: str
         ? eq(articles.userId, userId)
         : and(eq(articles.userId, userId), eq(articles.category, selected)),
     )
-    .orderBy(desc(articles.savedAt));
+    // 한 번에 가져와 저장한 뉴스는 savedAt이 같으므로 발행일로 한 번 더 정렬한다.
+    .orderBy(desc(articles.savedAt), desc(articles.publishedAt));
 
   if (rows.length === 0) {
     return selected === ALL ? <NoArticles /> : <EmptyCategory name={selected} />;

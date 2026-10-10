@@ -9,7 +9,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 해외 AI 뉴스를 버튼 한 번으로 RSS 수집 → Claude가 한국어 제목·요약(3~4문장)·카테고리 제안·중복 판별 → 사용자가 고른 뉴스만 DB 저장 → 노션으로 내보내는 앱. **요구사항의 단일 기준은 `PRD.md`**이며, 이 문서는 구현 시 지켜야 할 핵심만 요약한다. 충돌 시 `PRD.md`가 우선. **화면 스타일(색상·글꼴·컴포넌트·레이아웃)은 `ui.md`를 따른다** — UI를 만들거나 고칠 때 먼저 확인할 것.
 
-현재 상태: `create-next-app` 기본 템플릿 + 의존성 설치까지 완료. 앱 코드는 아직 없다.
+현재 상태: Clerk 로그인, Neon + Drizzle 스키마, 메인·대시보드 UI(메인은 예시 데이터), 대시보드의 RSS 가져오기(임시: 바로 `articles`에 저장, Claude 처리 없음)까지 구현.
 
 ## 명령어
 
@@ -75,6 +75,7 @@ RSS 소스는 두 개로 고정(소스 추가 UI는 범위 외):
   - `auth`는 `@clerk/nextjs/server`에서 import.
 - **사용자 격리**: 모든 데이터(뉴스, 카테고리, 노션 연결)는 Clerk `userId`로 분리. 모든 API·Server Action은 로그인 사용자 본인 데이터만 읽고 쓴다.
 - **가져오기 ≠ 저장**: 가져온 뉴스는 "가져온 뉴스" 탭에 카드로만 보여준다. DB 쓰기는 저장하기/모두 저장에서만. 가져오는 중 로딩 상태, 실패 시 오류 메시지 표시.
+  - 예외(임시): `/dashboard`의 `fetchNews` Server Action(`src/app/dashboard/actions.ts`)은 지난 24시간 RSS 기사를 바로 `articles`에 저장한다(원제목·원문 요약·"기타"). PRD F2 메모 참고.
 - **중복 처리 (F3)**
   1. URL 정규화(쿼리스트링·`utm_*`·끝 슬래시 제거) 후 같은 URL은 하나만 남김.
   2. DB에 이미 있는 URL은 카드에 "저장됨" 표시, 재저장하지 않음.
