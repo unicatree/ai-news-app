@@ -3,10 +3,11 @@
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 @AGENTS.md
+@ui.md
 
 ## 프로젝트 개요
 
-해외 AI 뉴스를 버튼 한 번으로 RSS 수집 → Claude가 한국어 제목·요약(3~4문장)·카테고리 제안·중복 판별 → 사용자가 고른 뉴스만 DB 저장 → 노션으로 내보내는 앱. **요구사항의 단일 기준은 `PRD.md`**이며, 이 문서는 구현 시 지켜야 할 핵심만 요약한다. 충돌 시 `PRD.md`가 우선.
+해외 AI 뉴스를 버튼 한 번으로 RSS 수집 → Claude가 한국어 제목·요약(3~4문장)·카테고리 제안·중복 판별 → 사용자가 고른 뉴스만 DB 저장 → 노션으로 내보내는 앱. **요구사항의 단일 기준은 `PRD.md`**이며, 이 문서는 구현 시 지켜야 할 핵심만 요약한다. 충돌 시 `PRD.md`가 우선. **화면 스타일(색상·글꼴·컴포넌트·레이아웃)은 `ui.md`를 따른다** — UI를 만들거나 고칠 때 먼저 확인할 것.
 
 현재 상태: `create-next-app` 기본 템플릿 + 의존성 설치까지 완료. 앱 코드는 아직 없다.
 
