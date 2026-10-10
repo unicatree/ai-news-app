@@ -1,5 +1,8 @@
-import { Show, SignInButton, SignUpButton, UserButton } from "@clerk/nextjs";
+import { Show, SignInButton, SignUpButton } from "@clerk/nextjs";
+import { AppHeader } from "@/components/app-header";
 import { AutoOpenSignIn } from "@/components/auto-open-sign-in";
+import { NewsBoard } from "@/components/news-board";
+import { sampleNews } from "@/lib/sample-news";
 
 export default function Home() {
   return (
@@ -27,13 +30,10 @@ export default function Home() {
       </Show>
 
       <Show when="signed-in">
-        <header className="flex items-center justify-between border-b border-zinc-200 px-4 py-3 dark:border-zinc-800">
-          <span className="font-bold">AI 뉴스 수집기</span>
-          <UserButton />
-        </header>
-        <main className="flex flex-1 items-center justify-center px-4 text-zinc-500">
-          {/* 메인 화면(뉴스 가져오기, 탭, 카드 그리드)은 PRD 3단계에서 구현 */}
-          로그인되었습니다.
+        <AppHeader />
+        <main className="flex-1">
+          {/* TODO(PRD 3단계): /api/news/fetch 구현 후 예시 데이터 제거 */}
+          <NewsBoard initialItems={sampleNews} isSample />
         </main>
       </Show>
     </>

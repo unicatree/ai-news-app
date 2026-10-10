@@ -1,0 +1,167 @@
+import type { NewsItem } from "@/lib/news-types";
+
+const dateFormat = new Intl.DateTimeFormat("ko-KR", {
+  year: "numeric",
+  month: "long",
+  day: "numeric",
+  timeZone: "Asia/Seoul",
+});
+
+type Props = {
+  item: NewsItem;
+  // "fetched": 가져온 뉴스 탭(저장하기), "saved": 저장한 뉴스 탭(Notion 저장)
+  variant: "fetched" | "saved";
+  busy?: boolean;
+  onSave?: () => void;
+  onNotionSave?: () => void;
+};
+
+export function NewsCard({ item, variant, busy, onSave, onNotionSave }: Props) {
+  const merged = item.sources.length > 1;
+
+  return (
+    <article className="group flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:border-blue-200 hover:shadow-md dark:border-slate-800 dark:bg-slate-900 dark:hover:border-blue-900">
+      {item.imageUrl && (
+        // 외부 RSS 이미지라 next/image 원격 패턴 설정 없이 그대로 표시한다.
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={item.imageUrl}
+          alt=""
+          loading="lazy"
+          className="aspect-[16/9] w-full bg-slate-100 object-cover dark:bg-slate-800"
+        />
+      )}
+
+      <div className="flex flex-1 flex-col gap-3 p-5">
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-semibold text-blue-700 dark:bg-blue-950 dark:text-blue-300">
+            {item.category}
+          </span>
+          {item.isNewCategory && !item.saved && (
+            <span className="rounded-full border border-dashed border-blue-300 px-2 py-0.5 text-xs text-blue-600 dark:border-blue-800 dark:text-blue-400">
+              새 카테고리
+            </span>
+          )}
+          {merged && (
+            <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-600 dark:bg-slate-800 dark:text-slate-300">
+              {item.sources.length}개 출처
+            </span>
+          )}
+        </div>
+
+        <h2 className="text-lg font-bold leading-snug tracking-tight text-slate-900 dark:text-slate-50">
+          {item.titleKo}
+        </h2>
+
+        <p className="text-[15px] leading-7 text-slate-600 dark:text-slate-300">
+          {item.summaryKo}
+        </p>
+
+        <div className="mt-auto flex flex-wrap items-center gap-x-2 gap-y-1 pt-2 text-sm text-slate-500 dark:text-slate-400">
+          <span className="font-medium text-slate-700 dark:text-slate-200">
+            {item.sources.map((s) => s.name).join(" · ")}
+          </span>
+          <span aria-hidden>·</span>
+          <time dateTime={item.publishedAt}>
+            {dateFormat.format(new Date(item.publishedAt))}
+          </time>
+        </div>
+      </div>
+
+      <div className="flex items-center justify-between gap-3 border-t border-slate-100 px-5 py-3 dark:border-slate-800">
+        <div className="flex flex-wrap gap-x-4 gap-y-1">
+          {item.sources.map((s) => (
+            <a
+              key={s.url}
+              href={s.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 text-sm font-medium text-blue-600 hover:text-blue-700 hover:underline dark:text-blue-400 dark:hover:text-blue-300"
+            >
+              {merged ? `${s.name} 원문` : "원문보기"}
+              <ArrowUpRight />
+            </a>
+          ))}
+        </div>
+
+        {variant === "fetched" ? (
+          item.saved ? (
+            <StatusBadge>저장됨</StatusBadge>
+          ) : (
+            <PrimaryButton onClick={onSave} disabled={busy}>
+              {busy ? "저장 중…" : "저장하기"}
+            </PrimaryButton>
+          )
+        ) : item.notionPageUrl ? (
+          <a
+            href={item.notionPageUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="shrink-0"
+          >
+            <StatusBadge>Notion 저장됨 ↗</StatusBadge>
+          </a>
+        ) : (
+          <PrimaryButton onClick={onNotionSave} disabled={busy} outline>
+            {busy ? "저장 중…" : "Notion 저장"}
+          </PrimaryButton>
+        )}
+      </div>
+    </article>
+  );
+}
+
+function PrimaryButton({
+  children,
+  outline,
+  ...props
+}: React.ButtonHTMLAttributes<HTMLButtonElement> & { outline?: boolean }) {
+  return (
+    <button
+      type="button"
+      {...props}
+      className={
+        "h-9 shrink-0 rounded-lg px-4 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-60 " +
+        (outline
+          ? "border border-blue-200 text-blue-700 hover:bg-blue-50 dark:border-blue-900 dark:text-blue-300 dark:hover:bg-blue-950"
+          : "bg-blue-600 text-white hover:bg-blue-700")
+      }
+    >
+      {children}
+    </button>
+  );
+}
+
+function StatusBadge({ children }: { children: React.ReactNode }) {
+  return (
+    <span className="inline-flex h-9 shrink-0 items-center gap-1 rounded-lg bg-slate-100 px-3 text-sm font-medium text-slate-500 dark:bg-slate-800 dark:text-slate-400">
+      <svg viewBox="0 0 16 16" className="size-4 text-blue-600 dark:text-blue-400" aria-hidden>
+        <path d="M3.5 8.5l3 3 6-7" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+      {children}
+    </span>
+  );
+}
+
+function ArrowUpRight() {
+  return (
+    <svg viewBox="0 0 16 16" className="size-3.5" aria-hidden>
+      <path d="M5 11L11 5M6 5h5v5" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+export function NewsCardSkeleton() {
+  return (
+    <div className="flex animate-pulse flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900">
+      <div className="h-5 w-20 rounded-full bg-slate-200 dark:bg-slate-800" />
+      <div className="h-6 w-11/12 rounded bg-slate-200 dark:bg-slate-800" />
+      <div className="h-6 w-2/3 rounded bg-slate-200 dark:bg-slate-800" />
+      <div className="mt-2 space-y-2">
+        <div className="h-4 rounded bg-slate-100 dark:bg-slate-800/70" />
+        <div className="h-4 rounded bg-slate-100 dark:bg-slate-800/70" />
+        <div className="h-4 w-4/5 rounded bg-slate-100 dark:bg-slate-800/70" />
+      </div>
+    </div>
+  );
+}
