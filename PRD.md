@@ -178,7 +178,7 @@
 | POST | `/api/notion/save` | 저장한 뉴스를 노션에 저장 |
 
 ### Claude 처리 규칙 (`/api/news/fetch`)
-- 모델: `claude-sonnet-5-5`
+- 모델: `claude-haiku-4-5`
 - 입력: 사용자의 기존 카테고리 목록 + 수집한 기사(제목, RSS 본문/요약, URL, 출처)
 - 출력 (structured output, JSON 스키마): 기사별
   `{ id, titleKo, summaryKo, category, isNewCategory, duplicateOf }`

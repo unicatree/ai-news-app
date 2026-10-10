@@ -9,7 +9,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 해외 AI 뉴스를 버튼 한 번으로 RSS 수집 → Claude가 한국어 제목·요약(3~4문장)·카테고리 제안·중복 판별 → 사용자가 고른 뉴스만 DB 저장 → 노션으로 내보내는 앱. **요구사항의 단일 기준은 `PRD.md`**이며, 이 문서는 구현 시 지켜야 할 핵심만 요약한다. 충돌 시 `PRD.md`가 우선. **화면 스타일(색상·글꼴·컴포넌트·레이아웃)은 `ui.md`를 따른다** — UI를 만들거나 고칠 때 먼저 확인할 것.
 
-현재 상태: Clerk 로그인, Neon + Drizzle 스키마, 메인·대시보드 UI(메인은 예시 데이터), 대시보드의 RSS 가져오기(임시: 바로 `articles`에 저장, Claude 처리 없음)까지 구현.
+현재 상태: Clerk 로그인, Neon + Drizzle 스키마, 메인·대시보드 UI, 메인의 `/api/news/fetch`(RSS 수집 → Claude 번역·요약·분류 → 중복 합치기, DB 저장 안 함), 대시보드의 RSS 가져오기(임시: 바로 `articles`에 저장, Claude 처리 없음)까지 구현. 메인의 저장하기/모두 저장은 아직 화면 상태만 바꾼다(4단계).
 
 ## 명령어
 
@@ -81,7 +81,7 @@ RSS 소스는 두 개로 고정(소스 추가 UI는 범위 외):
   2. DB에 이미 있는 URL은 카드에 "저장됨" 표시, 재저장하지 않음.
   3. 다른 출처의 같은 사건은 Claude의 `duplicateOf`로 판별해 카드 하나로 합치고 두 원문 링크를 모두 표시(`relatedUrls`).
   4. `(userId, originalUrl)` 유니크 제약으로 DB 레벨에서도 이중 저장 방지.
-- **Claude 처리 (`/api/news/fetch`)**: 모델 `claude-sonnet-5-5`. 입력은 사용자의 기존 카테고리 목록 + 기사(제목, RSS 본문/요약, URL, 출처). structured output(JSON 스키마)으로 기사별 `{ id, titleKo, summaryKo, category, isNewCategory, duplicateOf }`. 기사를 배치로 나눠 병렬 처리(30초 이내 목표). **이미 저장된 뉴스와 URL 중복 뉴스는 Claude에 보내지 않는다**(비용).
+- **Claude 처리 (`/api/news/fetch`)**: 모델 `claude-haiku-4-5`. 입력은 사용자의 기존 카테고리 목록 + 기사(제목, RSS 본문/요약, URL, 출처). structured output(JSON 스키마)으로 기사별 `{ id, titleKo, summaryKo, category, isNewCategory, duplicateOf }`. 기사를 배치로 나눠 병렬 처리(30초 이내 목표). **이미 저장된 뉴스와 URL 중복 뉴스는 Claude에 보내지 않는다**(비용).
 - **카테고리 (F4)**: 기본 목록 없음 — Claude가 기존 카테고리 중 선택하거나 새 이름 제안. 새 카테고리는 해당 뉴스 **저장 시** 목록에 자동 등록. "기타"는 항상 존재하며 삭제 불가. 이름 수정 시 저장된 뉴스의 `category`도 함께 변경, 삭제 시 해당 뉴스는 "기타"로 이동. 변경 사항은 이후 가져오는 뉴스부터 반영(기존 저장 뉴스 재분류는 범위 외). 필터 칩은 두 탭 모두에 적용.
 - **뉴스 카드 (F5)**: 출처(합친 카드는 둘 다), 발행일(RSS 기준), 카테고리, 한국어 제목, 한국어 요약, 원문보기(새 탭), 저장하기("가져온 뉴스" 탭 → 저장 후 "저장됨"), Notion 저장("저장한 뉴스" 탭 → 저장 후 "Notion 저장됨" + 노션 페이지 링크). 모바일에서는 한 줄에 카드 하나.
 - **모두 저장 (F6)**: 아직 저장 안 한 뉴스를 한 번에 저장. 카테고리 필터가 걸려 있으면 **현재 화면에 보이는 뉴스만** 저장. 완료 후 "N개 저장됨" 표시.

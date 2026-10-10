@@ -2,7 +2,6 @@ import { Show, SignInButton, SignUpButton } from "@clerk/nextjs";
 import { AppHeader } from "@/components/app-header";
 import { AutoOpenSignIn } from "@/components/auto-open-sign-in";
 import { NewsBoard } from "@/components/news-board";
-import { sampleNews } from "@/lib/sample-news";
 
 export default function Home() {
   return (
@@ -32,8 +31,7 @@ export default function Home() {
       <Show when="signed-in">
         <AppHeader />
         <main className="flex-1">
-          {/* TODO(PRD 3단계): /api/news/fetch 구현 후 예시 데이터 제거 */}
-          <NewsBoard initialItems={sampleNews} isSample />
+          <NewsBoard />
         </main>
       </Show>
     </>

@@ -20,3 +20,12 @@ export type NewsItem = {
   saved: boolean;
   notionPageUrl?: string | null;
 };
+
+// POST /api/news/fetch 응답
+export type FetchNewsResponse =
+  | {
+      items: NewsItem[];
+      failedSources: string[]; // 가져오지 못한 RSS 출처
+      failedCount: number; // Claude 처리에 실패해 빠진 기사 수
+    }
+  | { error: string };

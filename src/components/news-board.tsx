@@ -2,22 +2,19 @@
 
 import { useMemo, useState } from "react";
 import { NewsCard, NewsCardSkeleton } from "@/components/news-card";
-import type { NewsItem } from "@/lib/news-types";
+import type { FetchNewsResponse, NewsItem } from "@/lib/news-types";
 
 type Tab = "fetched" | "saved";
 const ALL = "전체";
 
-type Props = {
-  initialItems: NewsItem[];
-  isSample?: boolean;
-};
-
-export function NewsBoard({ initialItems, isSample }: Props) {
-  const [items, setItems] = useState(initialItems);
+export function NewsBoard() {
+  const [items, setItems] = useState<NewsItem[]>([]);
+  const [fetched, setFetched] = useState(false);
   const [tab, setTab] = useState<Tab>("fetched");
   const [category, setCategory] = useState(ALL);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [warning, setWarning] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
 
   // TODO(PRD 4단계): "저장한 뉴스"는 GET /api/news/saved로 불러온다. 지금은 화면 상태 기준.
@@ -32,13 +29,18 @@ export function NewsBoard({ initialItems, isSample }: Props) {
   async function fetchNews() {
     setLoading(true);
     setError(null);
+    setWarning(null);
     setNotice(null);
     try {
       const res = await fetch("/api/news/fetch", { method: "POST" });
-      const data = await res.json().catch(() => null);
-      if (!res.ok) throw new Error(data?.error ?? "뉴스를 가져오지 못했습니다.");
+      const data: FetchNewsResponse | null = await res.json().catch(() => null);
+      if (!res.ok || !data || "error" in data) {
+        throw new Error(data && "error" in data ? data.error : "뉴스를 가져오지 못했습니다.");
+      }
       setItems(data.items);
+      setFetched(true);
       setCategory(ALL);
+      setWarning(partialFailureMessage(data.failedSources, data.failedCount));
     } catch (e) {
       setError(e instanceof Error ? e.message : "뉴스를 가져오지 못했습니다.");
     } finally {
@@ -79,12 +81,6 @@ export function NewsBoard({ initialItems, isSample }: Props) {
           {loading ? "가져오는 중…" : "뉴스 가져오기"}
         </button>
       </section>
-
-      {isSample && (
-        <p className="mt-4 rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-800 dark:bg-amber-950/50 dark:text-amber-300">
-          지금 보이는 카드는 화면 확인용 예시 데이터입니다.
-        </p>
-      )}
 
       <div className="mt-8 flex flex-col gap-4 border-b border-slate-200 dark:border-slate-800 sm:flex-row sm:items-end sm:justify-between">
         <div className="flex gap-6" role="tablist">
@@ -153,6 +149,11 @@ export function NewsBoard({ initialItems, isSample }: Props) {
           {error}
         </p>
       )}
+      {warning && (
+        <p className="mt-6 rounded-lg bg-amber-50 px-4 py-3 text-sm text-amber-800 dark:bg-amber-950/50 dark:text-amber-300">
+          {warning}
+        </p>
+      )}
 
       <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
         {loading
@@ -171,11 +172,20 @@ export function NewsBoard({ initialItems, isSample }: Props) {
 
       {!loading && visible.length === 0 && (
         <div className="mt-6 rounded-2xl border border-dashed border-slate-300 py-16 text-center text-slate-500 dark:border-slate-700">
-          {tab === "fetched"
-            ? "‘뉴스 가져오기’를 눌러 최신 AI 뉴스를 불러오세요."
-            : "아직 저장한 뉴스가 없습니다."}
+          {tab === "saved"
+            ? "아직 저장한 뉴스가 없습니다."
+            : fetched
+              ? "지난 24시간 동안 올라온 새 AI 뉴스가 없습니다."
+              : "‘뉴스 가져오기’를 눌러 최신 AI 뉴스를 불러오세요."}
         </div>
       )}
     </div>
   );
+}
+
+function partialFailureMessage(failedSources: string[], failedCount: number): string | null {
+  const parts: string[] = [];
+  if (failedSources.length > 0) parts.push(`${failedSources.join(" · ")} 뉴스를 가져오지 못했습니다.`);
+  if (failedCount > 0) parts.push(`뉴스 ${failedCount}개는 처리하지 못해 제외했습니다.`);
+  return parts.length > 0 ? parts.join(" ") : null;
 }
