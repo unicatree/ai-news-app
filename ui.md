@@ -37,7 +37,7 @@
 | 요소 | 클래스 |
 |---|---|
 | 페이지 제목 | `text-2xl font-bold tracking-tight` |
-| 카드 제목 | `text-lg font-bold leading-snug tracking-tight` |
+| 카드 제목 | `text-lg font-bold leading-snug tracking-tight wrap-break-word` (긴 영어 단어가 넘치지 않게) |
 | 카드 요약(본문) | `text-[15px] leading-7` — 줄 간격을 넉넉히 둬서 3~4문장 요약이 편하게 읽히게 한다 |
 | 탭 | `text-[15px] font-semibold` |
 | 버튼·칩·메타 정보 | `text-sm font-medium` 또는 `font-semibold` |
@@ -63,7 +63,7 @@
 ```
 
 - `sticky top-0 z-10 h-14 border-b border-slate-200 bg-white/80 backdrop-blur`
-- 왼쪽: 파란 사각 로고(`size-7 rounded-lg bg-blue-600`, 흰 글자 "AI") + 앱 이름 `font-bold`. 누르면 `/`로 이동.
+- 왼쪽: 파란 사각 로고(`size-7 rounded-lg bg-blue-600`, 흰 글자 "AI") + 앱 이름 `font-bold`. 누르면 `/`로 이동. 모바일에서는 앱 이름을 숨기고 로고만 보여준다(`hidden sm:inline`).
 - 오른쪽: 설정 링크(카테고리 관리, 노션 설정)는 `text-sm font-medium text-slate-600 hover:text-slate-900`, 맨 끝에 Clerk `<UserButton />`.
 
 ### 메인 대시보드 (`/`)
@@ -116,11 +116,14 @@ TechCrunch · The Verge의 AI 소식을 한국어로…
 
 | 상태 | 클래스 |
 |---|---|
-| 공통 | `h-8 shrink-0 rounded-full px-3.5 text-sm font-medium transition` |
+| 공통 | `h-9 sm:h-8 shrink-0 rounded-full px-3.5 text-sm font-medium transition` (모바일은 터치하기 쉽게 36px) |
 | 기본 | `bg-white text-slate-600 ring-1 ring-slate-200 hover:bg-blue-50 hover:text-blue-700` / `dark:bg-slate-900 dark:text-slate-300 dark:ring-slate-800 dark:hover:bg-slate-800` |
 | 선택됨 | `bg-blue-600 text-white` |
 
-- 줄 컨테이너: 모바일은 가로 스크롤(`-mx-4 flex gap-2 overflow-x-auto px-4 pb-1`), `sm` 이상은 줄바꿈(`sm:mx-0 sm:flex-wrap sm:px-0`).
+| 이동 중(누른 직후) | `bg-blue-600/70 text-white` — `useLinkStatus`로 누르는 즉시 표시 |
+
+- 줄 컨테이너: 모바일은 칩만 가로 스크롤하고 **카테고리 추가 버튼은 스크롤 밖 오른쪽에 고정**한다. `sm` 이상은 스크롤 래퍼를 `sm:contents`로 풀어 줄바꿈하고, 추가 버튼이 칩 맨 끝에 이어진다.
+- 칩은 `<Link scroll={false}>`로 `?category=` 주소를 바꾼다. 목록에 없는 카테고리가 주소로 들어오면 `전체`로 처리한다.
 
 ### 카테고리 추가 버튼
 
@@ -141,7 +144,7 @@ TechCrunch · The Verge의 AI 소식을 한국어로…
 동작:
 
 1. 누르면 버튼 자리가 **같은 크기의 입력 칩**으로 바뀐다 (페이지 이동·모달 없음).
-   - `h-8 w-36 rounded-full border border-blue-400 bg-white px-3.5 text-sm outline-none ring-2 ring-blue-100 dark:bg-slate-900 dark:ring-blue-950`, `placeholder="새 카테고리"`, 자동 포커스
+   - `h-9 sm:h-8 w-36 rounded-full border border-blue-400 bg-white pl-3.5 pr-8 text-sm outline-none ring-2 ring-blue-100 dark:bg-slate-900 dark:ring-blue-950`, `placeholder="새 카테고리"`, 자동 포커스
 2. `Enter` → 카테고리 추가 Server Action 호출 → 성공하면 새 칩이 `기타` 앞에 생기고 입력 칩은 다시 버튼으로 돌아간다.
 3. `Esc` 또는 입력이 빈 채로 포커스가 빠지면 취소.
 4. 이미 있는 이름이면 입력 칩 아래에 `text-xs text-red-600` "이미 있는 카테고리입니다." 표시.
@@ -166,7 +169,8 @@ TechCrunch · The Verge의 AI 소식을 한국어로…
 
 - 카드: `flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:border-blue-200 hover:shadow-md`
 - 본문 영역: `flex flex-1 flex-col gap-3 p-5`. 메타 정보 줄에 `mt-auto`를 줘서 카드 높이가 달라도 하단이 맞춰지게 한다.
-- 하단 액션 줄: `border-t border-slate-100 px-5 py-3`, 왼쪽 링크 / 오른쪽 버튼.
+- 하단 액션 줄: `border-t border-slate-100 px-5 py-3`. `sm` 이상은 왼쪽 링크 / 오른쪽 버튼, **모바일은 링크 아래에 버튼을 전체 폭(`w-full h-10`)으로** 쌓는다.
+- hover 효과(떠오르기)는 Tailwind v4에서 마우스가 있는 기기에만 적용되므로 따로 처리하지 않는다.
 
 ### 배지
 
@@ -203,10 +207,13 @@ TechCrunch · The Verge의 AI 소식을 한국어로…
 
 | 상태 | 표시 |
 |---|---|
-| 로딩 | 카드 자리에 스켈레톤 카드 6개(`animate-pulse`, 회색 막대) |
+| 로딩(첫 진입) | 라우트의 `loading.tsx` — 헤더는 레이아웃에 두어 유지하고, 제목 + 칩 자리 + 스켈레톤 카드 6개 |
+| 로딩(필터 변경) | 칩 줄은 그대로 두고 카드 목록만 `<Suspense key={필터}>`의 스켈레톤으로 바꾼다 |
+| 로딩(폼 제출) | 입력 칸 안 오른쪽에 회전 아이콘(`animate-spin`) |
 | 오류 | 칩 줄 아래 `role="alert"` 빨간 알림 박스 `rounded-lg px-4 py-3 text-sm` |
 | 완료 알림 | "모두 저장" 왼쪽에 `text-sm font-medium text-blue-700` "N개 저장됨" |
-| 빈 목록 | `rounded-2xl border border-dashed border-slate-300 py-16 text-center text-slate-500` + 다음 행동 안내 문구 |
+| 빈 목록(데이터 없음) | 점선 박스(`rounded-2xl border border-dashed py-16 text-center`) 안에 아이콘(`size-12 rounded-2xl bg-blue-50`) + 제목 `text-lg font-bold` + 설명 + **큰 기본 버튼**으로 다음 행동 안내 |
+| 빈 목록(필터 결과 없음) | 점선 박스 + 한 줄 설명 + 테두리 버튼 "전체 보기". 개수 표시는 숨긴다 |
 
 ---
 
@@ -214,7 +221,7 @@ TechCrunch · The Verge의 AI 소식을 한국어로…
 
 | 폭 | 카드 열 | 그 밖 |
 |---|---|---|
-| 기본(모바일) | 1열 | 페이지 머리 세로 배치, 칩 줄 가로 스크롤 |
+| 기본(모바일) | 1열 | 헤더는 로고만, 칩 줄 가로 스크롤 + 추가 버튼 고정, 칩 36px, 카드 버튼 전체 폭 |
 | `sm` (≥640px) | 2열 | 칩 줄 줄바꿈 |
 | `lg` (≥1024px) | 3열 | — |
 

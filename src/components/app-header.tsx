@@ -11,11 +11,16 @@ export function AppHeader() {
   return (
     <header className="sticky top-0 z-10 border-b border-slate-200 bg-white/80 backdrop-blur dark:border-slate-800 dark:bg-slate-950/80">
       <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4 sm:px-6">
-        <Link href="/" className="flex items-center gap-2 font-bold text-slate-900 dark:text-slate-50">
+        <Link
+          href="/"
+          aria-label="AI 뉴스 수집기 홈"
+          className="flex shrink-0 items-center gap-2 font-bold text-slate-900 dark:text-slate-50"
+        >
           <span className="grid size-7 place-items-center rounded-lg bg-blue-600 text-xs font-black text-white">
             AI
           </span>
-          AI 뉴스 수집기
+          {/* 모바일에서는 공간이 좁아 로고만 보여준다. */}
+          <span className="hidden sm:inline">AI 뉴스 수집기</span>
         </Link>
         <nav className="flex items-center gap-4 sm:gap-6">
           {navLinks.map((l) => (

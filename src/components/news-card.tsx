@@ -49,11 +49,11 @@ export function NewsCard({ item, variant, busy, onSave, onNotionSave }: Props) {
           )}
         </div>
 
-        <h2 className="text-lg font-bold leading-snug tracking-tight text-slate-900 dark:text-slate-50">
+        <h2 className="wrap-break-word text-lg font-bold leading-snug tracking-tight text-slate-900 dark:text-slate-50">
           {item.titleKo}
         </h2>
 
-        <p className="text-[15px] leading-7 text-slate-600 dark:text-slate-300">
+        <p className="wrap-break-word text-[15px] leading-7 text-slate-600 dark:text-slate-300">
           {item.summaryKo}
         </p>
 
@@ -68,7 +68,7 @@ export function NewsCard({ item, variant, busy, onSave, onNotionSave }: Props) {
         </div>
       </div>
 
-      <div className="flex items-center justify-between gap-3 border-t border-slate-100 px-5 py-3 dark:border-slate-800">
+      <div className="flex flex-col gap-3 border-t border-slate-100 px-5 py-3 sm:flex-row sm:items-center sm:justify-between dark:border-slate-800">
         <div className="flex flex-wrap gap-x-4 gap-y-1">
           {item.sources.map((s) => (
             <a
@@ -121,7 +121,7 @@ function PrimaryButton({
       type="button"
       {...props}
       className={
-        "h-9 shrink-0 rounded-lg px-4 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-60 " +
+        "h-10 w-full shrink-0 rounded-lg px-4 text-sm font-semibold transition sm:h-9 sm:w-auto disabled:cursor-not-allowed disabled:opacity-60 " +
         (outline
           ? "border border-blue-200 text-blue-700 hover:bg-blue-50 dark:border-blue-900 dark:text-blue-300 dark:hover:bg-blue-950"
           : "bg-blue-600 text-white hover:bg-blue-700")
@@ -134,7 +134,7 @@ function PrimaryButton({
 
 function StatusBadge({ children }: { children: React.ReactNode }) {
   return (
-    <span className="inline-flex h-9 shrink-0 items-center gap-1 rounded-lg bg-slate-100 px-3 text-sm font-medium text-slate-500 dark:bg-slate-800 dark:text-slate-400">
+    <span className="inline-flex h-10 w-full shrink-0 items-center justify-center gap-1 rounded-lg bg-slate-100 px-3 text-sm font-medium text-slate-500 sm:h-9 sm:w-auto dark:bg-slate-800 dark:text-slate-400">
       <svg viewBox="0 0 16 16" className="size-4 text-blue-600 dark:text-blue-400" aria-hidden>
         <path d="M3.5 8.5l3 3 6-7" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
       </svg>
