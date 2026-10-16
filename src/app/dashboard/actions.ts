@@ -1,6 +1,7 @@
 "use server";
 
 import { auth } from "@clerk/nextjs/server";
+import { and, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { db } from "@/db";
 import { articles, categories } from "@/db/schema";
@@ -26,6 +27,33 @@ export async function addCategory(formData: FormData): Promise<AddCategoryResult
     .onConflictDoNothing({ target: [categories.userId, categories.name] })
     .returning({ id: categories.id });
   if (inserted.length === 0) return { error: "이미 있는 카테고리입니다." };
+
+  revalidatePath("/dashboard");
+  return {};
+}
+
+const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+export type DeleteArticleResult = { error?: string };
+
+// 저장한 뉴스 1개를 삭제한다. 본인 뉴스만 지울 수 있다.
+export async function deleteArticle(articleId: string): Promise<DeleteArticleResult> {
+  const { userId } = await auth.protect();
+
+  if (typeof articleId !== "string" || !UUID_PATTERN.test(articleId)) {
+    return { error: "잘못된 요청입니다." };
+  }
+
+  let deleted: { id: string }[];
+  try {
+    deleted = await db
+      .delete(articles)
+      .where(and(eq(articles.id, articleId), eq(articles.userId, userId)))
+      .returning({ id: articles.id });
+  } catch {
+    return { error: "뉴스를 삭제하지 못했습니다. 잠시 후 다시 시도해 주세요." };
+  }
+  if (deleted.length === 0) return { error: "이미 삭제되었거나 없는 뉴스입니다." };
 
   revalidatePath("/dashboard");
   return {};

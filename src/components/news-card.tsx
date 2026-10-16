@@ -14,13 +14,15 @@ type Props = {
   busy?: boolean;
   onSave?: () => void;
   onNotionSave?: () => void;
+  // 있으면 오른쪽 위에 삭제(X) 버튼을 보여준다. (저장한 뉴스 탭)
+  onDelete?: () => void;
 };
 
-export function NewsCard({ item, variant, busy, onSave, onNotionSave }: Props) {
+export function NewsCard({ item, variant, busy, onSave, onNotionSave, onDelete }: Props) {
   const merged = item.sources.length > 1;
 
   return (
-    <article className="group flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:border-blue-200 hover:shadow-md dark:border-slate-800 dark:bg-slate-900 dark:hover:border-blue-900">
+    <article className="group relative flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:border-blue-200 hover:shadow-md dark:border-slate-800 dark:bg-slate-900 dark:hover:border-blue-900">
       {item.imageUrl && (
         // 외부 RSS 이미지라 next/image 원격 패턴 설정 없이 그대로 표시한다.
         // eslint-disable-next-line @next/next/no-img-element
@@ -32,8 +34,22 @@ export function NewsCard({ item, variant, busy, onSave, onNotionSave }: Props) {
         />
       )}
 
+      {onDelete && (
+        <button
+          type="button"
+          onClick={onDelete}
+          aria-label="뉴스 삭제"
+          title="삭제"
+          className="absolute right-3 top-3 grid size-8 place-items-center rounded-full bg-white/90 text-slate-500 ring-1 ring-slate-200 transition hover:bg-red-50 hover:text-red-600 dark:bg-slate-900/90 dark:text-slate-400 dark:ring-slate-800 dark:hover:bg-red-950/50 dark:hover:text-red-300"
+        >
+          <svg viewBox="0 0 16 16" className="size-3.5" aria-hidden>
+            <path d="M4 4l8 8M12 4l-8 8" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+          </svg>
+        </button>
+      )}
+
       <div className="flex flex-1 flex-col gap-3 p-5">
-        <div className="flex flex-wrap items-center gap-2">
+        <div className={"flex flex-wrap items-center gap-2" + (onDelete && !item.imageUrl ? " pr-8" : "")}>
           <span className="rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-semibold text-blue-700 dark:bg-blue-950 dark:text-blue-300">
             {item.category}
           </span>

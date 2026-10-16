@@ -56,7 +56,7 @@ npx drizzle-kit migrate    # Neon에 마이그레이션 적용
 | POST | `/api/news/fetch` | RSS 수집 → 중복 처리 → Claude 처리 → 결과 반환 (**DB 저장 안 함**) |
 | POST | `/api/news/save` | 1개 또는 여러 개 저장 + 새 카테고리 등록 |
 | GET | `/api/news/saved` | 저장한 뉴스 목록(최신순, 카테고리 필터) |
-| — | Server Actions | 카테고리 추가/수정/삭제 |
+| — | Server Actions | 카테고리 추가/수정/삭제, 저장한 뉴스 삭제(`deleteArticle`, 대시보드 카드 X 버튼) |
 | POST | `/api/notion/save` | 저장한 뉴스 1개(`{ articleId }`)를 노션에 저장하고 페이지 URL 반환 |
 
 RSS 소스는 두 개로 고정(소스 추가 UI는 범위 외):
@@ -88,7 +88,7 @@ RSS 소스는 두 개로 고정(소스 추가 UI는 범위 외):
 - **뉴스 카드 (F5)**: 출처(합친 카드는 둘 다), 발행일(RSS 기준), 카테고리, 한국어 제목, 한국어 요약, 원문보기(새 탭), 저장하기("가져온 뉴스" 탭 → 저장 후 "저장됨"), 뉴스저장("저장한 뉴스" 탭 → 노션 데이터베이스에 저장 후 "저장됨" + 노션 페이지 링크). 모바일에서는 한 줄에 카드 하나.
 - **모두 저장 (F6)**: 아직 저장 안 한 뉴스를 한 번에 저장. 카테고리 필터가 걸려 있으면 **현재 화면에 보이는 뉴스만** 저장. 완료 후 "N개 저장됨" 표시.
 - **노션 (F7, 1인용 고정 토큰 방식)**: 서버에서 노션 REST API(`POST /v1/pages`, `Notion-Version: 2025-09-03`, `NOTION_TOKEN`)를 직접 호출해 노션 데이터베이스("AI 뉴스 북마크", 부모 `data_source_id` = `NOTION_DATA_SOURCE_ID`)에 뉴스 행(속성: 제목·요약·출처(URL)·카테고리(선택)·날짜)을 추가한다(`src/lib/notion/save-to-notion.ts`). 번역은 가져올 때 끝나 있으므로 이 단계에서는 Claude·MCP를 쓰지 않는다. 합친 뉴스의 다른 출처 URL은 요약 아래에 덧붙인다. 생성된 페이지 URL을 `articles.notionPageUrl`에 기록. 사용자별 노션 연결(OAuth)·`/settings/notion`은 두지 않는다.
-- **범위 외**: 자동(예약) 수집, RSS 소스 추가 UI, 저장 뉴스 재분류, 저장 뉴스 삭제.
+- **범위 외**: 자동(예약) 수집, RSS 소스 추가 UI, 저장 뉴스 재분류.
 
 ## 환경 변수 (`.env.local`)
 

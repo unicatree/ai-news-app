@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { deleteArticle } from "@/app/dashboard/actions";
 import { NewsCard, NewsCardSkeleton } from "@/components/news-card";
 import type { NewsItem, NotionSaveResponse } from "@/lib/news-types";
 
@@ -12,6 +13,20 @@ export function SavedNewsGrid({ items }: { items: NewsItem[] }) {
   const [notionUrls, setNotionUrls] = useState<Record<string, string>>({});
   const [busyIds, setBusyIds] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
+  // 삭제를 누른 뉴스는 서버 응답을 기다리지 않고 바로 숨긴다. 실패하면 다시 보여준다.
+  const [removedIds, setRemovedIds] = useState<string[]>([]);
+
+  async function removeArticle(id: string) {
+    setRemovedIds((prev) => [...prev, id]);
+    setError(null);
+    try {
+      const result = await deleteArticle(id);
+      if (result.error) throw new Error(result.error);
+    } catch (e) {
+      setRemovedIds((prev) => prev.filter((r) => r !== id));
+      setError(e instanceof Error ? e.message : "뉴스를 삭제하지 못했습니다.");
+    }
+  }
 
   async function saveToNotion(id: string) {
     setBusyIds((prev) => [...prev, id]);
@@ -42,15 +57,18 @@ export function SavedNewsGrid({ items }: { items: NewsItem[] }) {
         </p>
       )}
       <div className={gridClass}>
-        {items.map((item) => (
-          <NewsCard
-            key={item.id}
-            item={notionUrls[item.id] ? { ...item, notionPageUrl: notionUrls[item.id] } : item}
-            variant="saved"
-            busy={busyIds.includes(item.id)}
-            onNotionSave={() => saveToNotion(item.id)}
-          />
-        ))}
+        {items
+          .filter((item) => !removedIds.includes(item.id))
+          .map((item) => (
+            <NewsCard
+              key={item.id}
+              item={notionUrls[item.id] ? { ...item, notionPageUrl: notionUrls[item.id] } : item}
+              variant="saved"
+              busy={busyIds.includes(item.id)}
+              onNotionSave={() => saveToNotion(item.id)}
+              onDelete={() => removeArticle(item.id)}
+            />
+          ))}
       </div>
     </>
   );
