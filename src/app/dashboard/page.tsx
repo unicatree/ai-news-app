@@ -25,11 +25,15 @@ const PAGE_SIZE = 9; // 3열 그리드 3줄
 export default async function DashboardPage({ searchParams }: PageProps<"/dashboard">) {
   const { userId } = await auth.protect();
 
-  const categoryRows = await db
-    .select({ name: categories.name })
-    .from(categories)
-    .where(eq(categories.userId, userId))
-    .orderBy(asc(categories.createdAt));
+  // 배지의 총 개수는 필터·검색과 상관없이 사용자가 저장한 뉴스 전체를 센다.
+  const [categoryRows, [{ total: articleTotal }]] = await Promise.all([
+    db
+      .select({ name: categories.name })
+      .from(categories)
+      .where(eq(categories.userId, userId))
+      .orderBy(asc(categories.createdAt)),
+    db.select({ total: count() }).from(articles).where(eq(articles.userId, userId)),
+  ]);
 
   // "기타"는 항상 있고 맨 뒤에 둔다.
   const categoryNames = [
@@ -47,7 +51,7 @@ export default async function DashboardPage({ searchParams }: PageProps<"/dashbo
 
   return (
     <>
-      <DashboardHeading />
+      <DashboardHeading total={articleTotal} />
       <div className="mt-8 border-b border-slate-200 dark:border-slate-800" />
       <CategoryChips names={categoryNames} selected={selected} allLabel={ALL} query={query} />
       <DashboardSearch category={selected === ALL ? null : selected} query={query} />
@@ -154,7 +158,9 @@ function NoArticles() {
           />
         </svg>
       </div>
-      <h2 className="mt-4 text-lg font-bold text-slate-900 dark:text-slate-50">아직 저장한 뉴스가 없어요</h2>
+      <h2 className="mt-4 text-lg font-bold text-slate-900 dark:text-slate-50">
+        아직 저장한 뉴스가 없어요
+      </h2>
       <p className="mt-1 max-w-sm text-[15px] leading-7 text-slate-500 dark:text-slate-400">
         뉴스를 가져와서 마음에 드는 기사를 저장하면 여기에 모입니다.
       </p>
