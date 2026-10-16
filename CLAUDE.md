@@ -23,6 +23,10 @@ npx drizzle-kit migrate    # Neon에 마이그레이션 적용
 
 테스트 러너는 아직 설정되어 있지 않다. 검증은 PRD 9장의 완료 기준 시나리오(11개)로 한다.
 
+### 슬래시 명령
+
+- `/news-workflow [브랜치이름]` (`.claude/commands/news-workflow.md`): 새 기능 개발 흐름. main 확인 → 새 브랜치 생성(이름이 없으면 기능을 물어보고 영어 소문자-하이픈 이름 제안) → 스택·컨벤션 안내 → 사용자가 '완료'/'done' 입력 시 변경 파일 목록과 커밋 메시지 제안 → 확인 후 커밋하고 main에 병합 → 작업 요약. 푸시·브랜치 삭제는 요청할 때만.
+
 ## 스택과 버전 주의사항
 
 - **Next.js 16** (App Router, TypeScript, `src/` 디렉터리, `@/*` → `src/*`). 학습 데이터와 다른 API가 많으므로 `node_modules/next/dist/docs/`를 먼저 확인할 것. 특히 `middleware.ts`는 **`proxy.ts`로 이름이 바뀌었고** Node.js 런타임에서만 동작한다 — Clerk 라우트 보호는 `src/proxy.ts`에 둔다.
