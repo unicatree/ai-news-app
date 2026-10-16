@@ -16,6 +16,7 @@ export default function DashboardLoading() {
           />
         ))}
       </div>
+      <div className="mt-4 h-10 animate-pulse rounded-lg bg-slate-200 sm:ml-auto sm:max-w-[30rem] dark:bg-slate-800" aria-hidden />
       <SavedNewsGridSkeleton />
     </>
   );

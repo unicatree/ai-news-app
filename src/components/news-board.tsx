@@ -1,7 +1,9 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { KeywordSearch } from "@/components/keyword-search";
 import { NewsCard, NewsCardSkeleton } from "@/components/news-card";
+import { matchesQuery } from "@/lib/keyword-search";
 import type { FetchNewsResponse, NewsItem } from "@/lib/news-types";
 
 type Tab = "fetched" | "saved";
@@ -12,6 +14,7 @@ export function NewsBoard() {
   const [fetched, setFetched] = useState(false);
   const [tab, setTab] = useState<Tab>("fetched");
   const [category, setCategory] = useState(ALL);
+  const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [warning, setWarning] = useState<string | null>(null);
@@ -23,7 +26,9 @@ export function NewsBoard() {
     () => [ALL, ...new Set(tabItems.map((i) => i.category))],
     [tabItems],
   );
-  const visible = category === ALL ? tabItems : tabItems.filter((i) => i.category === category);
+  const visible = tabItems.filter(
+    (i) => (category === ALL || i.category === category) && matchesQuery(i, query),
+  );
   const unsavedVisible = visible.filter((i) => !i.saved);
 
   async function fetchNews() {
@@ -144,6 +149,15 @@ export function NewsBoard() {
         ))}
       </div>
 
+      <KeywordSearch
+        key={query}
+        query={query}
+        onSearch={(q) => {
+          setQuery(q);
+          setNotice(null);
+        }}
+      />
+
       {error && (
         <p role="alert" className="mt-6 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700 dark:bg-red-950/50 dark:text-red-300">
           {error}
@@ -173,7 +187,9 @@ export function NewsBoard() {
 
       {!loading && visible.length === 0 && (
         <div className="mt-6 rounded-2xl border border-dashed border-slate-300 py-16 text-center text-slate-500 dark:border-slate-700">
-          {tab === "saved"
+          {query && tabItems.length > 0
+            ? `‘${query}’에 맞는 뉴스가 없습니다.`
+            : tab === "saved"
             ? "아직 저장한 뉴스가 없습니다."
             : fetched
               ? "지난 24시간 동안 올라온 새 AI 뉴스가 없습니다."
