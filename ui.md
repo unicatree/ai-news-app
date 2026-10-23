@@ -155,22 +155,37 @@ TechCrunch · The Verge의 AI 소식을 한국어로…
 ## 4. 뉴스 카드
 
 ```
-┌──────────────────────────────┐
-│ [이미지 16:9]   (있을 때만)    │
-│ (모델) (새 카테고리) (2개 출처) │
-│ 한국어 제목 (굵게, 2~3줄)       │
-│ 한국어 요약 3~4문장 …          │
-│                              │
-│ TechCrunch · 2026년 10월 10일 │
-├──────────────────────────────┤
-│ 원문보기 ↗          [저장하기] │
-└──────────────────────────────┘
+┌────────────────────────────────────┐
+│ [이미지 16:9]   (있을 때만)          │
+│ (모델) (새 카테고리)   2026년 10월 10일 │  ← 머리 줄: 무엇 + 언제
+│ 한국어 제목 (굵게, 2~3줄)             │  ← 가장 강한 위계
+│ 한국어 요약 3~4문장 …                │
+├────────────────────────────────────┤  ← 옅은 회색 바탕
+│ TechCrunch 원문 ↗       [저장하기]   │  ← 출처 = 원문 링크
+└────────────────────────────────────┘
 ```
 
-- 카드: `flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:border-blue-200 hover:shadow-md`
-- 본문 영역: `flex flex-1 flex-col gap-3 p-5`. 메타 정보 줄에 `mt-auto`를 줘서 카드 높이가 달라도 하단이 맞춰지게 한다.
-- 하단 액션 줄: `border-t border-slate-100 px-5 py-3`. `sm` 이상은 왼쪽 링크 / 오른쪽 버튼, **모바일은 링크 아래에 버튼을 전체 폭(`w-full h-10`)으로** 쌓는다.
-- hover 효과(떠오르기)는 Tailwind v4에서 마우스가 있는 기기에만 적용되므로 따로 처리하지 않는다.
+- 카드: `group flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition duration-200 ease-out hover:-translate-y-0.5 hover:border-blue-200 hover:shadow-md focus-within:border-blue-200`
+- 이미지: `aspect-[16/9] overflow-hidden` 래퍼 안에 `size-full object-cover`. 움직임은 주지 않는다.
+- 제목은 대표 출처(첫 번째) 원문 링크다(`text-pretty`로 마지막 줄 외톨이 단어 방지).
+- 본문 영역: `flex flex-1 flex-col p-5 sm:p-6`. 요소 사이 간격은 위계에 맞춰 다르게 준다 — 머리 줄 → 제목 `mt-3.5`, 제목 → 요약 `mt-2.5`(제목과 요약을 한 덩어리로 묶는다).
+- 머리 줄: 왼쪽 배지들, 오른쪽 발행일(`text-xs font-medium tabular-nums text-slate-500`). 삭제(X) 버튼이 있고 이미지가 없으면 `pr-9`로 자리를 비운다.
+- 하단 액션 줄: `border-t border-slate-100 bg-slate-50/60 px-5 py-3 sm:px-6` (다크 `dark:bg-slate-900`). `sm` 이상은 왼쪽 링크 / 오른쪽 버튼, **모바일은 링크 아래에 버튼을 전체 폭(`w-full h-10`)으로** 쌓는다.
+- 출처는 하단 줄에서 **한 번만** 보여준다. 출처 이름이 곧 원문 링크다(본문에 출처 메타 줄을 따로 두지 않는다).
+
+### hover 인터랙션
+
+hover 반응은 **누를 수 있는 곳에서만** 준다. 카드 자체는 링크가 아니므로 카드 hover는 "지금 이 카드를 보고 있다"는 정도로만 약하게 하고, 색 변화는 실제 링크에만 준다. 장식용 움직임(이미지 확대 등)은 쓰지 않는다.
+
+| 대상 | 변화 |
+|---|---|
+| 카드 | 살짝 떠오름(`-translate-y-0.5`) + 테두리 `blue-200` + `shadow-md`, `duration-200 ease-out` |
+| 제목 링크 | 자기 hover 때만 `text-blue-700` + 밑줄(`decoration-blue-300 decoration-2 underline-offset-4`) |
+| 원문 링크 화살표 | `group-hover/link:` 오른쪽 위로 0.5만큼 이동 — "새 탭으로 나간다"를 보여준다 |
+
+- 모든 움직임에 `motion-reduce:` 짝을 둬서 동작 줄이기 설정을 존중한다.
+- 카드 안 링크는 `focus-visible:outline-2 outline-offset-2 outline-blue-600`로 키보드 포커스를 보여주고, 카드 테두리도 `focus-within`으로 같이 바뀐다.
+- hover 효과는 Tailwind v4에서 마우스가 있는 기기에만 적용되므로 터치 기기용 처리는 따로 하지 않는다.
 
 ### 배지
 
@@ -182,7 +197,7 @@ TechCrunch · The Verge의 AI 소식을 한국어로…
 
 ### 링크·버튼
 
-- 원문 링크: `text-sm font-medium text-blue-600 hover:underline` + ↗ 아이콘, `target="_blank" rel="noopener noreferrer"`. 합친 카드는 "TechCrunch 원문", "The Verge 원문"처럼 출처별로 모두 표시.
+- 원문 링크: 출처 이름 `text-sm font-semibold text-slate-700 hover:text-blue-700` + "원문" `text-blue-600` + ↗ 아이콘(blue), `target="_blank" rel="noopener noreferrer"`. 모든 카드가 "TechCrunch 원문 ↗" 형식이고, 합친 카드는 "TechCrunch 원문", "The Verge 원문"처럼 출처별로 모두 표시.
 - 가져온 뉴스 탭: `저장하기`(채운 파란 버튼) → 저장 후 `✓ 저장됨` 상태 표시
 - 저장한 뉴스 탭: `뉴스저장`(테두리 버튼, 노션 데이터베이스에 저장) → 저장 후 `✓ 저장됨 ↗`(노션 페이지 링크)
 
