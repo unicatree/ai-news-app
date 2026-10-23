@@ -66,6 +66,17 @@
 - 왼쪽: 파란 사각 로고(`size-7 rounded-lg bg-blue-600`, 흰 글자 "AI") + 앱 이름 `font-bold`. 누르면 `/`로 이동. 모바일에서는 앱 이름을 숨기고 로고만 보여준다(`hidden sm:inline`).
 - 오른쪽: 설정 링크(카테고리 관리, 노션 설정)는 `text-sm font-medium text-slate-600 hover:text-slate-900`, 맨 끝에 Clerk `<UserButton />`.
 
+### 푸터 (모든 화면 공통)
+
+```
+─────────────────────────────────────────────────────────
+Copyright 2026 AI 뉴스 수집기.            Powered by Claude.
+```
+
+- 루트 레이아웃(`src/app/layout.tsx`)에 두어 로그인 전후 모두 화면 맨 아래에 붙는다(`body`의 `flex-col` + `main`의 `flex-1`).
+- `border-t border-slate-200`, 배경 없음, 헤더와 같은 컨테이너(`max-w-6xl px-4 sm:px-6`)에 `py-6`.
+- 글자는 `text-sm text-slate-500`. "Claude"만 `font-medium text-slate-700`로 살짝 강조. `sm` 이상은 좌우 배치, 모바일은 세로로 쌓는다.
+
 ### 메인 대시보드 (`/`)
 
 ```
