@@ -22,10 +22,7 @@ export function NewsBoard() {
 
   // TODO(PRD 4단계): "저장한 뉴스"는 GET /api/news/saved로 불러온다. 지금은 화면 상태 기준.
   const tabItems = tab === "fetched" ? items : items.filter((i) => i.saved);
-  const categories = useMemo(
-    () => [ALL, ...new Set(tabItems.map((i) => i.category))],
-    [tabItems],
-  );
+  const categories = useMemo(() => [ALL, ...new Set(tabItems.map((i) => i.category))], [tabItems]);
   const visible = tabItems.filter(
     (i) => (category === ALL || i.category === category) && matchesQuery(i, query),
   );
@@ -80,8 +77,19 @@ export function NewsBoard() {
           disabled={loading}
           className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 font-semibold text-white shadow-sm shadow-blue-600/20 transition hover:bg-blue-700 disabled:opacity-70"
         >
-          <svg viewBox="0 0 20 20" className={`size-4 ${loading ? "animate-spin" : ""}`} aria-hidden>
-            <path d="M16 10a6 6 0 1 1-1.8-4.3M16 3.5V6h-2.5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+          <svg
+            viewBox="0 0 20 20"
+            className={`size-4 ${loading ? "animate-spin" : ""}`}
+            aria-hidden
+          >
+            <path
+              d="M16 10a6 6 0 1 1-1.8-4.3M16 3.5V6h-2.5"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.8"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
           </svg>
           {loading ? "가져오는 중…" : "뉴스 가져오기"}
         </button>
@@ -119,7 +127,9 @@ export function NewsBoard() {
 
         {tab === "fetched" && (
           <div className="flex items-center gap-3 pb-3">
-            {notice && <span className="text-sm font-medium text-blue-700 dark:text-blue-400">{notice}</span>}
+            {notice && (
+              <span className="text-sm font-medium text-blue-700 dark:text-blue-400">{notice}</span>
+            )}
             <button
               type="button"
               onClick={saveAll}
@@ -159,7 +169,10 @@ export function NewsBoard() {
       />
 
       {error && (
-        <p role="alert" className="mt-6 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700 dark:bg-red-950/50 dark:text-red-300">
+        <p
+          role="alert"
+          className="mt-6 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700 dark:bg-red-950/50 dark:text-red-300"
+        >
           {error}
         </p>
       )}
@@ -169,6 +182,10 @@ export function NewsBoard() {
         </p>
       )}
 
+      {/* live region은 항상 두고 문구만 바꿔야 스크린 리더가 변경을 읽는다. */}
+      <p role="status" className="sr-only">
+        {loading ? "뉴스를 가져오는 중입니다." : ""}
+      </p>
       <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
         {loading
           ? Array.from({ length: 6 }, (_, i) => <NewsCardSkeleton key={i} />)
@@ -190,10 +207,10 @@ export function NewsBoard() {
           {query && tabItems.length > 0
             ? `‘${query}’에 맞는 뉴스가 없습니다.`
             : tab === "saved"
-            ? "아직 저장한 뉴스가 없습니다."
-            : fetched
-              ? "지난 24시간 동안 올라온 새 AI 뉴스가 없습니다."
-              : "‘뉴스 가져오기’를 눌러 최신 AI 뉴스를 불러오세요."}
+              ? "아직 저장한 뉴스가 없습니다."
+              : fetched
+                ? "지난 24시간 동안 올라온 새 AI 뉴스가 없습니다."
+                : "‘뉴스 가져오기’를 눌러 최신 AI 뉴스를 불러오세요."}
         </div>
       )}
     </div>
@@ -202,7 +219,8 @@ export function NewsBoard() {
 
 function partialFailureMessage(failedSources: string[], failedCount: number): string | null {
   const parts: string[] = [];
-  if (failedSources.length > 0) parts.push(`${failedSources.join(" · ")} 뉴스를 가져오지 못했습니다.`);
+  if (failedSources.length > 0)
+    parts.push(`${failedSources.join(" · ")} 뉴스를 가져오지 못했습니다.`);
   if (failedCount > 0) parts.push(`뉴스 ${failedCount}개는 처리하지 못해 제외했습니다.`);
   return parts.length > 0 ? parts.join(" ") : null;
 }

@@ -22,7 +22,10 @@ export function NewsCard({ item, variant, busy, onSave, onNotionSave, onDelete }
   const merged = item.sources.length > 1;
 
   return (
-    <article className="group relative flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:border-blue-200 hover:shadow-md dark:border-slate-800 dark:bg-slate-900 dark:hover:border-blue-900">
+    <article
+      aria-busy={busy || undefined}
+      className="group relative flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:border-blue-200 hover:shadow-md dark:border-slate-800 dark:bg-slate-900 dark:hover:border-blue-900"
+    >
       {item.imageUrl && (
         // 외부 RSS 이미지라 next/image 원격 패턴 설정 없이 그대로 표시한다.
         // eslint-disable-next-line @next/next/no-img-element
@@ -43,13 +46,23 @@ export function NewsCard({ item, variant, busy, onSave, onNotionSave, onDelete }
           className="absolute right-3 top-3 grid size-8 place-items-center rounded-full bg-white/90 text-slate-500 ring-1 ring-slate-200 transition hover:bg-red-50 hover:text-red-600 dark:bg-slate-900/90 dark:text-slate-400 dark:ring-slate-800 dark:hover:bg-red-950/50 dark:hover:text-red-300"
         >
           <svg viewBox="0 0 16 16" className="size-3.5" aria-hidden>
-            <path d="M4 4l8 8M12 4l-8 8" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+            <path
+              d="M4 4l8 8M12 4l-8 8"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.8"
+              strokeLinecap="round"
+            />
           </svg>
         </button>
       )}
 
       <div className="flex flex-1 flex-col gap-3 p-5">
-        <div className={"flex flex-wrap items-center gap-2" + (onDelete && !item.imageUrl ? " pr-8" : "")}>
+        <div
+          className={
+            "flex flex-wrap items-center gap-2" + (onDelete && !item.imageUrl ? " pr-8" : "")
+          }
+        >
           <span className="rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-semibold text-blue-700 dark:bg-blue-950 dark:text-blue-300">
             {item.category}
           </span>
@@ -78,9 +91,7 @@ export function NewsCard({ item, variant, busy, onSave, onNotionSave, onDelete }
             {item.sources.map((s) => s.name).join(" · ")}
           </span>
           <span aria-hidden>·</span>
-          <time dateTime={item.publishedAt}>
-            {dateFormat.format(new Date(item.publishedAt))}
-          </time>
+          <time dateTime={item.publishedAt}>{dateFormat.format(new Date(item.publishedAt))}</time>
         </div>
       </div>
 
@@ -104,7 +115,7 @@ export function NewsCard({ item, variant, busy, onSave, onNotionSave, onDelete }
           item.saved ? (
             <StatusBadge>저장됨</StatusBadge>
           ) : (
-            <PrimaryButton onClick={onSave} disabled={busy}>
+            <PrimaryButton onClick={onSave} busy={busy}>
               {busy ? "저장 중…" : "저장하기"}
             </PrimaryButton>
           )
@@ -118,7 +129,7 @@ export function NewsCard({ item, variant, busy, onSave, onNotionSave, onDelete }
             <StatusBadge>저장됨 ↗</StatusBadge>
           </a>
         ) : (
-          <PrimaryButton onClick={onNotionSave} disabled={busy} outline>
+          <PrimaryButton onClick={onNotionSave} busy={busy} outline>
             {busy ? "저장 중…" : "뉴스저장"}
           </PrimaryButton>
         )}
@@ -127,24 +138,52 @@ export function NewsCard({ item, variant, busy, onSave, onNotionSave, onDelete }
   );
 }
 
+// busy면 버튼을 막고 글자 앞에 회전 아이콘을 보여준다.
 function PrimaryButton({
   children,
   outline,
+  busy,
+  disabled,
   ...props
-}: React.ButtonHTMLAttributes<HTMLButtonElement> & { outline?: boolean }) {
+}: React.ButtonHTMLAttributes<HTMLButtonElement> & { outline?: boolean; busy?: boolean }) {
   return (
     <button
       type="button"
       {...props}
+      disabled={busy || disabled}
       className={
-        "h-10 w-full shrink-0 rounded-lg px-4 text-sm font-semibold transition sm:h-9 sm:w-auto disabled:cursor-not-allowed disabled:opacity-60 " +
+        "inline-flex h-10 w-full shrink-0 items-center justify-center gap-2 rounded-lg px-4 text-sm font-semibold transition sm:h-9 sm:w-auto disabled:cursor-not-allowed disabled:opacity-60 " +
         (outline
           ? "border border-blue-200 text-blue-700 hover:bg-blue-50 dark:border-blue-900 dark:text-blue-300 dark:hover:bg-blue-950"
           : "bg-blue-600 text-white hover:bg-blue-700")
       }
     >
+      {busy && <Spinner />}
       {children}
     </button>
+  );
+}
+
+function Spinner() {
+  return (
+    <svg viewBox="0 0 16 16" className="size-4 animate-spin" aria-hidden>
+      <circle
+        cx="8"
+        cy="8"
+        r="6"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        opacity="0.25"
+      />
+      <path
+        d="M14 8a6 6 0 0 0-6-6"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+      />
+    </svg>
   );
 }
 
@@ -152,7 +191,14 @@ function StatusBadge({ children }: { children: React.ReactNode }) {
   return (
     <span className="inline-flex h-10 w-full shrink-0 items-center justify-center gap-1 rounded-lg bg-slate-100 px-3 text-sm font-medium text-slate-500 sm:h-9 sm:w-auto dark:bg-slate-800 dark:text-slate-400">
       <svg viewBox="0 0 16 16" className="size-4 text-blue-600 dark:text-blue-400" aria-hidden>
-        <path d="M3.5 8.5l3 3 6-7" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+        <path
+          d="M3.5 8.5l3 3 6-7"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
       </svg>
       {children}
     </span>
@@ -162,21 +208,39 @@ function StatusBadge({ children }: { children: React.ReactNode }) {
 function ArrowUpRight() {
   return (
     <svg viewBox="0 0 16 16" className="size-3.5" aria-hidden>
-      <path d="M5 11L11 5M6 5h5v5" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+      <path
+        d="M5 11L11 5M6 5h5v5"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </svg>
   );
 }
 
+// 실제 카드와 같은 구조(본문 + 하단 액션 줄)로 둬서 카드로 바뀔 때 높이가 튀지 않게 한다.
 export function NewsCardSkeleton() {
   return (
-    <div className="flex animate-pulse flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900">
-      <div className="h-5 w-20 rounded-full bg-slate-200 dark:bg-slate-800" />
-      <div className="h-6 w-11/12 rounded bg-slate-200 dark:bg-slate-800" />
-      <div className="h-6 w-2/3 rounded bg-slate-200 dark:bg-slate-800" />
-      <div className="mt-2 space-y-2">
-        <div className="h-4 rounded bg-slate-100 dark:bg-slate-800/70" />
-        <div className="h-4 rounded bg-slate-100 dark:bg-slate-800/70" />
-        <div className="h-4 w-4/5 rounded bg-slate-100 dark:bg-slate-800/70" />
+    <div
+      aria-hidden
+      className="flex animate-pulse flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900"
+    >
+      <div className="flex flex-1 flex-col gap-3 p-5">
+        <div className="h-5 w-20 rounded-full bg-slate-200 dark:bg-slate-800" />
+        <div className="h-6 w-11/12 rounded bg-slate-200 dark:bg-slate-800" />
+        <div className="h-6 w-2/3 rounded bg-slate-200 dark:bg-slate-800" />
+        <div className="mt-2 space-y-2">
+          <div className="h-4 rounded bg-slate-100 dark:bg-slate-800/70" />
+          <div className="h-4 rounded bg-slate-100 dark:bg-slate-800/70" />
+          <div className="h-4 w-4/5 rounded bg-slate-100 dark:bg-slate-800/70" />
+        </div>
+        <div className="mt-auto h-4 w-40 rounded bg-slate-100 pt-2 dark:bg-slate-800/70" />
+      </div>
+      <div className="flex flex-col gap-3 border-t border-slate-100 px-5 py-3 sm:flex-row sm:items-center sm:justify-between dark:border-slate-800">
+        <div className="h-4 w-20 rounded bg-slate-100 dark:bg-slate-800/70" />
+        <div className="h-10 w-full rounded-lg bg-slate-200 sm:h-9 sm:w-24 dark:bg-slate-800" />
       </div>
     </div>
   );
